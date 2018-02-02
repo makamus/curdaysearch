@@ -66,11 +66,6 @@ object FlightLine {
       case e: Exception =>  println( "Please Input correct style :  \"yyyy-MM-dd\" hour  filepath " )
     }
 
-
-    /*val sparkConf = new SparkConf().setAppName("FlightLine").setMaster("yarn-client")
-    val sc = new SparkContext(sparkConf)
-    val sqlContext = new HiveContext(sc)*/
-
     val tableName = "flightline_day_price"
     val configuration = HBaseConfiguration.create()
     configuration.set("hbase.rootdir", "hdfs://sinobbd-data-01:8020/hbase")
@@ -117,41 +112,6 @@ object FlightLine {
     tableAfterYear.setAutoFlush(true)
     tableAfterYear.setWriteBufferSize(64 * 1024 * 1024)
 
-    /*var rrrd = sqlContext.sql(s"select * from sp_class.iclog_zhongzhuan2 where dt='$day' and hour=$hour ").map(r => {
-      val departCity = r.getAs[String]("dc")
-      val arriveCity = r.getAs[String]("ac")
-      val departDay = r.getAs[String]("da")
-      var md5hash = md5Hash(departCity + arriveCity)
-      val dateFormat: SimpleDateFormat = new SimpleDateFormat("MMdd")
-      var departmonthday = dateFormat.format(dateformatglobal.parse(departDay) )
-
-      var calDepart = Calendar.getInstance()
-      calDepart.setTime(dateformatglobal.parse(departDay))
-      var calSearch = Calendar.getInstance()
-      calSearch.setTime(dateformatglobal.parse(day))
-      var diff = (calDepart.getTimeInMillis -  calSearch.getTimeInMillis )/ (1000*3600*24)
-      var diffday = String.valueOf(diff)
-
-      val key = md5hash.substring(0, 3) + departCity + arriveCity + departmonthday + band3Str(diffday)
-      val vp = r.getAs[Array[Array[Map[String,Object]]]]("dl")
-
-      //(key, Seq(vp))
-      (key,Seq( (vp,hour.toLong) ) )
-    })
-
-    rrrd.collect().foreach( X => {
-      println(scala.util.parsing.json.JSONArray(X._2.head._1.toList) )
-    })*/
-
-
-    /*import sqlContext.implicits._
-    val df =sqlContext.read.json("/hive/warehouse/sp_class.db/iclog_zhongzhuan2/dt=2018-01-31/")
-    df.printSchema()
-    df.as[FlightRecord].collect().foreach( r=> {
-      println(r.dc+r.ac)
-      println()
-    })*/
-
 
     val mapper: org.codehaus.jackson.map.ObjectMapper = new org.codehaus.jackson.map.ObjectMapper
     mapper.configure(org.codehaus.jackson.JsonParser.Feature.ALLOW_SINGLE_QUOTES, true)
@@ -163,7 +123,7 @@ object FlightLine {
     var lineNumber:Long = 0;
     var jsonObj:JSONObject = null
     for (line <- Source.fromFile(args(2)).getLines){
-      //jsonObj = JSONSerializer.toJSON(line).asInstanceOf[JSONObject]
+
       var root = mapper.readValue(line, classOf[java.util.Map[_, _]])
       val lowerRoot = new java.util.HashMap[String, Any]
       import scala.collection.JavaConversions._
@@ -176,12 +136,6 @@ object FlightLine {
       val departCity = root.get("dc").asInstanceOf[String]
       val arriveCity = root.get("ac").asInstanceOf[String]
       val departDay = root.get("da").asInstanceOf[String]
-
-      /*val   departCity = jsonObj.getString("dc")
-      val   arriveCity = jsonObj.getString("ac")
-      val   departDay = jsonObj.getString("da")*/
-
-      //println(departCity+arriveCity)
 
       var md5hash = md5Hash(departCity + arriveCity)
       val dateFormat: SimpleDateFormat = new SimpleDateFormat("MMdd")
@@ -216,17 +170,14 @@ object FlightLine {
         tableAfterYear.put(putListAfterYear)
         putListAfterYear= new util.ArrayList[Put]();
       }
-      //(key, Seq(vp))
-      //(key,Seq( (vp,hour.toLong) ) )
+
     }
 
     tableCurYear.put(putList)
     tableAfterYear.put(putListAfterYear)
 
-    //val cols = Seq("zhongzhuan")
-    //implicit var conf = HBaseConfig(configuration)
     println("file "+args(2)+ " writes  " +lineNumber ,  "\n")
-    //toHFileRDDFixedTS(rrrd).toHBaseBulk(tableName, "basic", cols)
+
     admin.close()
   }
 
