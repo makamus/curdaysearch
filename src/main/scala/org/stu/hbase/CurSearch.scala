@@ -19,7 +19,7 @@ object CurSearch {
 
   def getHBaseConn(): HConnection ={
     val conf:Configuration = HBaseConfiguration.create()
-    conf.set("hbase.zookeeper.quorum", "10.0.1.190,10.0.1.188,10.0.1.189,10.0.1.78")
+    conf.set("hbase.zookeeper.quorum", "172.29.100.21,172.29.100.22,172.29.100.23")
     conf.set("hbase.zookeeper.property.clientPort", "2181")
     val conn = HConnectionManager.createConnection(conf)
     conn
@@ -141,7 +141,7 @@ object CurSearch {
 
   def getUserComposite( phoneid: String): Array[(String,String,String,String,Double)]  = {
     val conf:Configuration = HBaseConfiguration.create()
-    conf.set("hbase.zookeeper.quorum", "10.0.1.190,10.0.1.188,10.0.1.189,10.0.1.78")
+    conf.set("hbase.zookeeper.quorum", "172.29.100.21,172.29.100.22,172.29.100.23")
     conf.set("hbase.zookeeper.property.clientPort", "2181")
     //Connection 的创建是个重量级的工作，线程安全，是操作hbase的入口
     val conn = ConnectionFactory.createConnection(conf)

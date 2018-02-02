@@ -73,9 +73,9 @@ class SearchAnalyze() extends Serializable with HBaseWriteSupport
 
     val tableName = "s_user_search"
     val configuration = HBaseConfiguration.create()
-    configuration.set("hbase.rootdir", "hdfs://iZ2ze0jk5poqsx70to99qtZ:8020/hbase")
+    configuration.set("hbase.rootdir", "hdfs://sinobbd-data-01:8020/hbase")
     configuration.setBoolean("hbase.cluster.distributed", true)
-    configuration.set("hbase.zookeeper.quorum", "10.0.1.190,10.0.1.188,10.0.1.189")
+    configuration.set("hbase.zookeeper.quorum", "172.29.100.21,172.29.100.22,172.29.100.23")
     configuration.set("hbase.zookeeper.property.clientPort", "2181")
     //Connection 的创建是个重量级的工作，线程安全，是操作hbase的入口
     //val conn = ConnectionFactory.createConnection(conf)
@@ -113,8 +113,8 @@ class SearchAnalyze() extends Serializable with HBaseWriteSupport
       (r._1, R._1._1, R._1._2, R._2, R._3, R._4, rd.mkString("#"), "[" + offlinedata.mkString(",") + "]")
     })
 
-    ssqlcontext.sql("drop table test_s_user_search")
-    val rrdtest = retRDD.map(X => Row(X._1, X._2, X._3, X._4, X._5, X._6))
+    //ssqlcontext.sql("drop table test_s_user_search")
+    /*val rrdtest = retRDD.map(X => Row(X._1, X._2, X._3, X._4, X._5, X._6))
     val schema = StructType(
       StructField("userid", StringType) ::
         StructField("dep", StringType) ::
@@ -123,8 +123,8 @@ class SearchAnalyze() extends Serializable with HBaseWriteSupport
         StructField("cabin", StringType) ::
         StructField("rate", DoubleType)
         :: Nil);
-    var resultdf = ssqlcontext.createDataFrame(rrdtest, schema);
-    resultdf.saveAsTable("test_s_user_search");
+    var resultdf = ssqlcontext.createDataFrame(rrdtest, schema);*/
+    //resultdf.saveAsTable("test_s_user_search");
 
     var rrrd = retRDD.map(X => (X._1, Seq(X._2, X._3, X._4, X._5, X._6.toString, X._7, X._8)))
     val numCols = 5
@@ -140,7 +140,7 @@ class SearchAnalyze() extends Serializable with HBaseWriteSupport
   def saveSec(sc: SparkContext, rdd: RDD[(String, Array[((String, String), String, String, Double)])]): Unit = {
     val tablename = "s_user_search_b"
 
-    sc.hadoopConfiguration.set("hbase.zookeeper.quorum", "10.0.1.188,10.0.1.189")
+    sc.hadoopConfiguration.set("hbase.zookeeper.quorum", "172.29.100.22,172.29.100.23")
     sc.hadoopConfiguration.set("hbase.zookeeper.property.clientPort", "2181")
     sc.hadoopConfiguration.set(org.apache.hadoop.hbase.mapreduce.TableOutputFormat.OUTPUT_TABLE, tablename)
 
@@ -176,7 +176,7 @@ class SearchAnalyze() extends Serializable with HBaseWriteSupport
     val tablename = "s_user_search"
     val conf = HBaseConfiguration.create()
     //设置zooKeeper集群地址，也可以通过将hbase-site.xml导入classpath，但是建议在程序里这样设置
-    conf.set("hbase.zookeeper.quorum", "10.0.1.188,10.0.1.189")
+    conf.set("hbase.zookeeper.quorum", "172.29.100.22,172.29.100.23")
     //设置zookeeper连接端口，默认2181
     conf.set("hbase.zookeeper.property.clientPort", "2181")
     conf.set(TableInputFormat.INPUT_TABLE, tablename)
@@ -220,14 +220,14 @@ object SearchAnalyze {
   def main(args: Array[String]) {
     ssqlcontext = getSingleContext()
     System.setProperty("HADOOP_USER_NAME", "hive")
-    /*val ds = new DataSource()
+    val ds = new DataSource()
     val data = ds.readTraining(sc, ssqlcontext)
 
     val inst = new SearchAnalyze()
     val rdd = inst.train(sc, data)
-    inst.save(sc, rdd, ssqlcontext)*/
-    val eval_inst = new Evaluation()
-    eval_inst.evaluate(sc,ssqlcontext)
+    inst.save(sc, rdd, ssqlcontext)
+    //val eval_inst = new Evaluation()
+    //eval_inst.evaluate(sc,ssqlcontext)
 
     //inst.readfun(sc)
   }
