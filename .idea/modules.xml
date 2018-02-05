@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/curdaysearch.iml" filepath="$PROJECT_DIR$/.idea/modules/curdaysearch.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/curdaysearch-build.iml" filepath="$PROJECT_DIR$/.idea/modules/curdaysearch-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/curdaysearch_git.iml" filepath="$PROJECT_DIR$/.idea/modules/curdaysearch_git.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/curdaysearch_git-build.iml" filepath="$PROJECT_DIR$/.idea/modules/curdaysearch_git-build.iml" />
     </modules>
   </component>
 </project>
